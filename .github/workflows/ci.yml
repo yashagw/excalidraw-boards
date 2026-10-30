@@ -1,0 +1,55 @@
+# Runs on every pull request and on main. Both jobs are required checks for
+# merging into main (see the "main" ruleset in the repository settings).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      # The converter tests run the built worker, so build before testing.
+      - run: npm run build
+      - run: npm test
+
+  docker:
+    name: docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build the image
+        run: docker build -t excalidraw-boards .
+      - name: Start it and check the app, the API and the MCP endpoint
+        run: |
+          docker run -d --name eb -p 3779:3779 excalidraw-boards
+          for i in $(seq 1 30); do curl -fs localhost:3779/healthz && break; sleep 1; done
+          curl -fsS localhost:3779/ | grep -q '<div id="root">'
+          curl -fsS localhost:3779/api/tree
+          curl -fsS -X POST localhost:3779/mcp \
+            -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | grep -q '"add_elements"'
+          # Requests for another host name (DNS rebinding) are refused.
+          test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: rebind.example' localhost:3779/api/tree)" = 403
+      - name: Container logs
+        if: always()
+        run: docker logs eb || true

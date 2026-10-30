@@ -43,7 +43,8 @@ the vendor's cloud (claude.ai, for example) cannot reach a server on `localhost`
 or a private network.
 
 Set `PUBLIC_URL` to the address you open the app at, so the board links in tool
-results work (see [self-hosting](self-hosting.md#configuration)).
+results work and that host name is accepted (see
+[self-hosting](self-hosting.md#configuration)).
 
 ## Tools
 

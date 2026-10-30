@@ -15,6 +15,13 @@ const PORT = Number(process.env.PORT ?? 3779);
 const DATA_DIR = path.resolve(process.env.DATA_DIR ?? "data");
 const PUBLIC_URL = (process.env.PUBLIC_URL ?? `http://localhost:${PORT}`).replace(/\/+$/, "");
 const CLIENT_DIR = path.join(import.meta.dirname, "..", "client");
+// Host names this server answers to. With no login, this is what stops DNS
+// rebinding: a page on another site pointing its domain at this machine.
+const ALLOWED_HOSTS = new Set(
+  ["localhost", "127.0.0.1", "[::1]", new URL(PUBLIC_URL).hostname, ...(process.env.ALLOWED_HOSTS ?? "").split(",")]
+    .map((h) => h.trim().toLowerCase())
+    .filter(Boolean),
+);
 
 const store = new Store(DATA_DIR, PUBLIC_URL);
 await store.init();
@@ -23,6 +30,11 @@ const boardUrl = (id: string) => `${PUBLIC_URL}/b/${id.split("/").map(encodeURIC
 
 const app = express();
 app.disable("x-powered-by");
+app.use((req, res, next) => {
+  const host = (req.hostname ?? "").toLowerCase();
+  if (ALLOWED_HOSTS.has("*") || ALLOWED_HOSTS.has(host)) return next();
+  res.status(403).type("text").send(`Host "${host}" is not allowed. Set PUBLIC_URL or ALLOWED_HOSTS (see docs/self-hosting.md).\n`);
+});
 // Compress everything except the event stream, which must reach the browser unbuffered.
 app.use(compression({ filter: (req, res) => req.path !== "/api/events" && compression.filter(req, res) }));
 
