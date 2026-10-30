@@ -12,6 +12,12 @@ updates:
       # Pinned on purpose: the server relies on the converter output of this exact
       # version (see CLAUDE.md). Upgrade it by hand, with the checks in docs/development.md.
       - dependency-name: "@excalidraw/excalidraw"
+      # Fractional index keys must match what the Excalidraw package uses (3.x).
+      - dependency-name: "fractional-indexing"
+        update-types: ["version-update:semver-major"]
+      # The types follow the Node major the app runs on (the Dockerfile's base image).
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -20,3 +26,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Move to a new Node major by hand, and only to an LTS release (even numbers).
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
