@@ -1,0 +1,10 @@
+node_modules
+dist
+
+# boards from `npm run dev` / docker compose
+data/
+
+# your own registry for `make release`
+local.mk
+
+.DS_Store

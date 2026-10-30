@@ -1,0 +1,15 @@
+# docker compose up -d   ->  http://localhost:3779
+# Boards are saved as plain .excalidraw files in ./data/boards.
+services:
+  excalidraw-boards:
+    build: .
+    container_name: excalidraw-boards
+    restart: unless-stopped
+    ports:
+      # localhost only: there is no login. To reach it from other machines, see docs/self-hosting.md.
+      - "127.0.0.1:3779:3779"
+    environment:
+      # Used for board links in MCP results; set it to the URL you open the app at.
+      - PUBLIC_URL=http://localhost:3779
+    volumes:
+      - ./data:/data

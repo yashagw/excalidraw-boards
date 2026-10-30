@@ -1,0 +1,11 @@
+node_modules
+dist
+data
+.git
+.claude
+.DS_Store
+Dockerfile
+Makefile
+docs
+local.mk
+*.md

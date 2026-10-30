@@ -1,0 +1,388 @@
+/* Everything here sits inside Excalidraw's own UI, so it uses Excalidraw's theme
+   variables and follows its light/dark switch. */
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+/* What shows behind the canvas while a board changes, and before the app loads:
+   Excalidraw's own canvas colours, so neither theme ever flashes the other. */
+html,
+.app {
+  background: #ffffff;
+}
+
+html[data-theme="dark"],
+.app[data-theme="dark"] {
+  background: #121212;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+.app {
+  height: 100dvh;
+}
+
+.boot {
+  display: grid;
+  place-items: center;
+  height: 100dvh;
+  font: 14px system-ui, sans-serif;
+  color: #868e96;
+}
+
+/* ---------- board change: a short page turn ----------
+   Only the canvases move, so the toolbar and sidebar stay still. A new board
+   mounts new canvases, which runs board-in; App adds .is-leaving while the
+   next board loads (LEAVE_MS in App.tsx matches the 140ms here). */
+
+.app .excalidraw__canvas {
+  animation: board-in 220ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.app.is-leaving .excalidraw__canvas {
+  opacity: 0;
+  transform: translateX(-16px);
+  transition:
+    opacity 140ms ease-in,
+    transform 140ms ease-in;
+}
+
+@keyframes board-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app .excalidraw__canvas {
+    animation-name: board-fade;
+  }
+
+  .app.is-leaving .excalidraw__canvas {
+    transform: none;
+  }
+
+  @keyframes board-fade {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+/* ---------- top right: save state + boards trigger ---------- */
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.save-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: var(--lg-button-size, 2.25rem);
+  padding: 0 0.75rem;
+  border-radius: var(--border-radius-lg, 0.5rem);
+  background: var(--color-surface-low);
+  box-shadow: 0 0 0 1px var(--color-surface-lowest);
+  color: var(--color-on-surface);
+  font-family: var(--ui-font);
+  font-size: 0.75rem;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.save-badge .board-name {
+  max-width: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+.save-badge .dot {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #2f9e44;
+}
+
+.save-badge.is-unsaved .dot,
+.save-badge.is-saving .dot {
+  background: #f08c00;
+}
+
+.save-badge.is-offline .dot,
+.save-badge.is-gone .dot,
+.save-badge.is-error .dot {
+  background: var(--color-danger, #e03131);
+}
+
+/* ---------- boards sidebar ---------- */
+
+.bp-title {
+  font-family: var(--ui-font);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-on-surface);
+}
+
+.bp {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  font-family: var(--ui-font);
+  font-size: 0.875rem;
+  color: var(--color-on-surface);
+}
+
+.bp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0 0.75rem 0.5rem;
+}
+
+.bp-search {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex: 1;
+  min-width: 0;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--input-border-color, var(--default-border-color));
+  border-radius: var(--border-radius-md, 0.375rem);
+  background: var(--input-bg-color);
+  color: var(--color-gray-50, #999);
+}
+
+.bp-search:focus-within {
+  border-color: var(--color-primary);
+}
+
+.bp-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-on-surface);
+  font: inherit;
+}
+
+.bp-btn,
+.bp-more {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--border-radius-md, 0.375rem);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.bp-btn:hover,
+.bp-more:hover {
+  background: var(--button-hover-bg);
+}
+
+.bp-list {
+  flex: 1;
+  min-height: 4rem;
+  overflow: auto;
+  padding: 0 0.5rem 1rem;
+  border-radius: var(--border-radius-md, 0.375rem);
+}
+
+.bp-list.is-drop {
+  box-shadow: inset 0 0 0 1.5px var(--color-primary);
+}
+
+.bp-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 2rem;
+  padding-right: 0.125rem;
+  border-radius: var(--border-radius-md, 0.375rem);
+  cursor: pointer;
+  user-select: none;
+}
+
+.bp-row:hover,
+.bp-row.is-menu {
+  background: var(--button-hover-bg);
+}
+
+.bp-row.is-active {
+  background: var(--color-surface-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.bp-row.is-drop {
+  box-shadow: inset 0 0 0 1.5px var(--color-primary);
+}
+
+.bp-row.is-editing {
+  cursor: default;
+}
+
+.bp-chevron {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1rem;
+  transition: transform 120ms ease;
+}
+
+.bp-chevron.is-open {
+  transform: rotate(90deg);
+}
+
+.bp-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.25rem;
+  opacity: 0.8;
+}
+
+.bp-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bp-meta {
+  flex: none;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--color-gray-50, #999);
+}
+
+.bp-more {
+  width: 1.625rem;
+  height: 1.625rem;
+  visibility: hidden;
+}
+
+.bp-row:hover .bp-more,
+.bp-row.is-menu .bp-more {
+  visibility: visible;
+}
+
+@media (hover: none) {
+  .bp-more {
+    visibility: visible;
+  }
+}
+
+.bp-input {
+  flex: 1;
+  min-width: 0;
+  height: 1.625rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--color-primary);
+  border-radius: 0.25rem;
+  outline: 0;
+  background: var(--input-bg-color);
+  color: var(--color-on-surface);
+  font: inherit;
+}
+
+.bp-empty {
+  margin: 0;
+  padding: 0.75rem 0.5rem;
+  color: var(--color-gray-50, #999);
+}
+
+/* ---------- row menu (rendered into the .excalidraw root, for the theme variables) ---------- */
+
+.bp-menu {
+  position: fixed;
+  z-index: 100;
+  min-width: 12rem;
+  max-width: 18rem;
+  padding: 0.375rem;
+  border-radius: var(--border-radius-lg, 0.5rem);
+  background: var(--island-bg-color);
+  box-shadow: var(--shadow-island), 0 0 0 1px var(--color-surface-lowest);
+  font-family: var(--ui-font);
+  font-size: 0.875rem;
+  color: var(--color-on-surface);
+}
+
+.bp-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: var(--border-radius-md, 0.375rem);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bp-menu button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bp-menu button:hover:not(:disabled) {
+  background: var(--button-hover-bg);
+}
+
+.bp-menu button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.bp-menu .danger {
+  color: var(--color-danger, #e03131);
+}
+
+.bp-menu-sep {
+  height: 1px;
+  margin: 0.25rem 0.25rem;
+  background: var(--default-border-color);
+}
+
+.bp-menu-title {
+  padding: 0.25rem 0.5rem 0.375rem;
+  font-size: 0.75rem;
+  color: var(--color-gray-50, #999);
+}
+
+.bp-menu-scroll {
+  max-height: 50vh;
+  overflow: auto;
+}

@@ -1,0 +1,41 @@
+{
+  "name": "excalidraw-boards",
+  "version": "0.1.5",
+  "description": "Self-hosted Excalidraw with boards in folders, saved on your server, and an MCP server so AI agents can draw on them.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yashagw/excalidraw-boards.git"
+  },
+  "scripts": {
+    "dev": "vite build -c vite.server.config.ts && concurrently -k -n build,server,ui \"vite build -c vite.server.config.ts --watch\" \"node --watch dist/server/index.js\" \"vite\"",
+    "build": "vite build && vite build -c vite.server.config.ts",
+    "start": "node dist/server/index.js",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.server.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "compression": "^1.8.2",
+    "express": "^5.3.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@excalidraw/excalidraw": "0.18.1",
+    "@types/compression": "^1.8.1",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "concurrently": "^10.0.6",
+    "fractional-indexing": "^3.4.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}
