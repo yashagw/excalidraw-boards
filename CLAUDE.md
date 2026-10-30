@@ -43,6 +43,9 @@ bump. Do not vendor or patch the package.
   newest 50 kept. Restore = copy one back over the board.
 - **z-order is the fractional `index`.** Server-added elements get keys above the
   board's highest (`fractional-indexing`, the same library Excalidraw uses).
+- **Host allowlist** (`ALLOWED_HOSTS` in index.ts): requests whose Host is not
+  localhost, `PUBLIC_URL`'s host or listed in `ALLOWED_HOSTS` get 403. With no
+  login, this is the defence against DNS rebinding; keep it in front of every route.
 - **Events**: `board` (with `by` = tab id or `mcp`, and `focus` ids for agent
   edits), `tree`, `moved`, `deleted`, over SSE at `/api/events`. A tab ignores
   its own `board` events.

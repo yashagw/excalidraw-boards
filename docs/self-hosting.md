@@ -39,6 +39,12 @@ delete every board, and so can any MCP client pointed at it. That is fine on
   oauth2-proxy, Authelia, Cloudflare Access) and note that MCP clients then need
   to pass that authentication too.
 
+The server only answers requests addressed to `localhost`, the host of
+`PUBLIC_URL`, or a name in `ALLOWED_HOSTS`, and refuses others with 403. That
+stops DNS rebinding, where a web page points its own domain at your machine to
+reach a server that has no login. If you open the app by another name or IP (a LAN
+address, a second domain), set `PUBLIC_URL` or add it to `ALLOWED_HOSTS`.
+
 ## Behind a reverse proxy
 
 Any HTTP proxy works. Two things matter: allow large request bodies (pasted
@@ -67,7 +73,10 @@ location /api/events {
 }
 ```
 
-Set `PUBLIC_URL` to the public address so links in MCP results point at it.
+Set `PUBLIC_URL` to the address you open, so links in MCP results point at it.
+Caddy passes the original `Host` header, so that name must be the host of
+`PUBLIC_URL` or listed in `ALLOWED_HOSTS`; the nginx config above connects as
+`127.0.0.1`, which is always allowed.
 
 ## Configuration
 
@@ -75,7 +84,8 @@ Set `PUBLIC_URL` to the public address so links in MCP results point at it.
 |---|---|---|
 | `PORT` | `3779` | Port the server listens on |
 | `DATA_DIR` | `./data` (`/data` in the image) | Boards, trash, history and the library |
-| `PUBLIC_URL` | `http://localhost:$PORT` | Base URL for board links in MCP results |
+| `PUBLIC_URL` | `http://localhost:$PORT` | The URL you open the app at. Used for board links in MCP results, and its host name is allowed (below) |
+| `ALLOWED_HOSTS` | none | More host names the server answers to, comma-separated (`board.lan,192.168.1.5`); `*` turns the check off |
 
 ## Backups
 

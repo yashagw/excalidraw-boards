@@ -4,6 +4,9 @@
 
 **Self-hosted Excalidraw with boards in folders, and an MCP server so your AI agent can draw on them.**
 
+[![CI](https://github.com/yashagw/excalidraw-boards/actions/workflows/ci.yml/badge.svg)](https://github.com/yashagw/excalidraw-boards/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 ![Excalidraw with a Boards sidebar of folders and boards](docs/images/boards-light.png)
 
 </div>
@@ -89,6 +92,10 @@ More in [docs/mcp.md](docs/mcp.md).
 - [MCP](docs/mcp.md): connecting clients, the tools, the element format, library icons
 - [Self-hosting](docs/self-hosting.md): Docker, reverse proxies, security, backups, configuration
 - [Development](docs/development.md): how the code is laid out, running it locally, tests
+
+## Contributing
+
+Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Please report security problems privately ([SECURITY.md](SECURITY.md)).
 
 ## Credits
 
